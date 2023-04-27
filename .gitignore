@@ -1,0 +1,7 @@
+.terraform*
+*.pem
+**/init-mongo.js
+**/.env
+**/mongodb_password
+files.zip
+*.DS_Store*

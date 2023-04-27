@@ -1,0 +1,12 @@
+{
+    "name": "terraform-codespaces",
+    "settings": {
+      "terminal.integrated.shell.linux": "/bin/zsh"
+    },
+    "extensions": [
+      "eamodio.gitlens",
+      "hashicorp.terraform",
+      "amazonwebservices.aws-toolkit-vscode"
+    ],
+    "postCreateCommand": "/bin/bash ./.devcontainer/post-install.sh"
+  }

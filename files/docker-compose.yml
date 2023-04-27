@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  rabbitmq:
+    hostname: "rabbit"
+    image: "rabbitmq:management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_management load_definitions "/etc/rabbitmq/definitions.json"
+    volumes:
+      - "/app/rabbit-data/:/var/lib/rabbitmq/mnesia"
+      - "/app/rabbitmq_definitions.json:/etc/rabbitmq/definitions.json"
+  evaluation-api:
+    image: "275291497228.dkr.ecr.us-east-1.amazonaws.com/evaluation-api:latest"
+    depends_on:
+      - "db"
+    ports:
+      - "8080:8080"
+    env_file: /app/.env
+    command:
+      - "-Duser.timezone=Asia/Seoul"
+      - "--spring.profiles.active=prod"
+  evaluation-event:
+    image: "275291497228.dkr.ecr.us-east-1.amazonaws.com/evaluation-event:latest"
+    deploy:
+      replicas: 3
+    depends_on:
+      - "rabbitmq"
+      - "db"
+    env_file: /app/.env
+    command:
+      - "-Duser.timezone=Asia/Seoul"
+      - "--spring.profiles.active=prod"
+  db:
+    image: mongo
+    hostname: "mongo"
+    ports:
+      - "27017:27017"
+    command:
+      - "--auth"
+    volumes:
+      - "/app/db/data:/data/db"
+      - "/app/db/initdb.d/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=eval
+      - MONGO_INITDB_DATABASE=students
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password
+    secrets:
+      - mongodb_password
+secrets:
+  mongodb_password:
+    file: /app/mongodb_password
