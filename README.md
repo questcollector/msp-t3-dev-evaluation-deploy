@@ -40,7 +40,7 @@ clone한 repository의 경로에서 `provider.tf`를 수정합니다.
 
 준비되지 않았다면 backend 블럭을 모두 `#` 기호로 주석처리 합니다.
 
-```json
+```terraform
 terraform {
   backend "s3" {
     bucket  = "state file이 저장될 s3 bucket명"
@@ -58,7 +58,7 @@ provider "aws" {
 
 `terraform.tfvars` 파일에 적절한 값으로 수정합니다.
 
-```json
+```terraform
 aws_region            = "자원이 생성될 리전"             # "ap-northeast-1"
 my_ami                = "docker 인스턴스의 ami(ubuntu 22.04 free tier)" # "ami-088da9557aae42f39"
 cidr_blocks_to_access = ["global lounge CIDR", ...]
