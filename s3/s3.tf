@@ -1,8 +1,4 @@
 resource "aws_s3_bucket" "docker_server_data" {
-  depends_on = [
-    data.archive_file.files
-  ]
-
   bucket = "docker-server-bucket-mspt3"
 
   tags = {
@@ -11,7 +7,11 @@ resource "aws_s3_bucket" "docker_server_data" {
 }
 
 resource "aws_s3_object" "object" {
+  depends_on = [
+    data.archive_file.files
+  ]
+
   bucket = aws_s3_bucket.docker_server_data.id
   key    = "files.zip"
-  source = "./files.zip"
+  source = "${path.module}/files.zip"
 }

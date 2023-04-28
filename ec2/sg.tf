@@ -50,6 +50,18 @@ resource "aws_security_group_rule" "api" {
   security_group_id = aws_security_group.docker_sg.id
 }
 
+resource "aws_security_group_rule" "api_from_lambda" {
+
+  description = "api - from public subnet cidr"
+  type        = "ingress"
+  from_port   = 8080
+  to_port     = 8080
+  protocol    = "TCP"
+
+  cidr_blocks       = var.public_subnet_cidr
+  security_group_id = aws_security_group.docker_sg.id
+}
+
 resource "aws_security_group_rule" "mongo" {
 
   description = "amqp - global-lounge"

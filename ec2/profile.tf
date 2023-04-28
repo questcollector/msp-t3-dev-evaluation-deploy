@@ -6,23 +6,22 @@ resource "aws_iam_instance_profile" "docker-sever-profile" {
   role = aws_iam_role.docker-sever-role.name
 }
 
-resource "aws_iam_role" "docker-sever-role" {
-  name = "docker-sever-role"
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
     }
-  ]
+
+    actions = ["sts:AssumeRole"]
+  }
 }
-POLICY
+
+resource "aws_iam_role" "docker-sever-role" {
+  name               = "docker-sever-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "docker-sever-role-AmazonSSMManagedInstanceCore" {

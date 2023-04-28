@@ -3,5 +3,5 @@
 **/init-mongo.js
 **/.env
 **/mongodb_password
-files.zip
+*.zip
 *.DS_Store*

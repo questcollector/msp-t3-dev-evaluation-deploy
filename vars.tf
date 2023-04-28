@@ -29,3 +29,15 @@ variable "slack_token" {
   sensitive   = true
   description = "slack bot user token"
 }
+
+variable "start_date" {
+  default     = null
+  type        = string
+  description = "2023-04-20T00:00:00"
+}
+
+variable "end_date" {
+  default     = null
+  type        = string
+  description = "2023-04-20T00:00:00"
+}

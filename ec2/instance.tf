@@ -8,7 +8,7 @@ resource "tls_private_key" "keypair" {
 }
 
 resource "local_sensitive_file" "pem" {
-  filename        = "./docker-instance-key.pem"
+  filename        = "${path.module}/docker-instance-key.pem"
   content         = tls_private_key.keypair.private_key_pem
   file_permission = "0400"
 }
@@ -31,7 +31,7 @@ resource "aws_instance" "docker" {
   key_name             = aws_key_pair.keypair.key_name
   iam_instance_profile = aws_iam_instance_profile.docker-sever-profile.name
 
-  user_data = file("./ec2/userdata")
+  user_data = file("${path.module}/userdata")
 
   tags = {
     Name = "evaluation-docker-server"

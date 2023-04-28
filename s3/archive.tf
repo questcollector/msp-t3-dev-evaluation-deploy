@@ -5,25 +5,25 @@ resource "random_password" "rand_passwd" {
 }
 
 resource "local_file" "init_mongo" {
-  content = templatefile("./files/db/initdb.d/init-mongo.js.tpl", {
+  content = templatefile("${path.module}/files/db/initdb.d/init-mongo.js.tpl", {
     rand_passwd = random_password.rand_passwd.result
   })
-  filename = "./files/db/initdb.d/init-mongo.js"
+  filename = "${path.module}/files/db/initdb.d/init-mongo.js"
 }
 
 resource "local_file" "env" {
-  content = templatefile("./files/.env.tpl", {
+  content = templatefile("${path.module}/files/.env.tpl", {
     rand_passwd = random_password.rand_passwd.result,
     slack_token = var.slack_token
   })
-  filename = "./files/.env"
+  filename = "${path.module}/files/.env"
 }
 
 resource "local_file" "mongodb_password" {
-  content = templatefile("./files/mongodb_password.tpl", {
+  content = templatefile("${path.module}/files/mongodb_password.tpl", {
     rand_passwd = random_password.rand_passwd.result
   })
-  filename = "./files/mongodb_password"
+  filename = "${path.module}/files/mongodb_password"
 }
 
 data "archive_file" "files" {
@@ -34,13 +34,13 @@ data "archive_file" "files" {
   ]
 
   type        = "zip"
-  output_path = "./files.zip"
+  output_path = "${path.module}/files.zip"
   excludes = [
     "db/initdb.d/init-mongo.js.tpl",
     ".env.tpl",
     "mongodb_password.tpl"
   ]
 
-  source_dir = "./files"
+  source_dir = "${path.module}/files"
 }
 
