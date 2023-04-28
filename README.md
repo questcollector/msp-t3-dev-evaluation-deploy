@@ -56,12 +56,14 @@ provider "aws" {
 
 ```
 
-terraform.tfvars 파일에 적절한 값으로 수정합니다.
+`terraform.tfvars` 파일에 적절한 값으로 수정합니다.
 
 ```json
-aws_region          = "자원이 생성될 리전"             # "ap-northeast-1"
-my_ami              = "docker 인스턴스의 ami(ubuntu 22.04 free tier)" # "ami-088da9557aae42f39"
-cidr_blocks_to_access = ["실습강사 IP CIDR", ...]
+aws_region            = "자원이 생성될 리전"             # "ap-northeast-1"
+my_ami                = "docker 인스턴스의 ami(ubuntu 22.04 free tier)" # "ami-088da9557aae42f39"
+cidr_blocks_to_access = ["global lounge CIDR", ...]
+start_date            = "실습참여도 과제 시작 시점" # LocalDateTime format 2023-01-01T00:00:00
+end_date              = "실습참여도 과제 종료 시점" # LocalDateTime format 2023-01-01T00:00:00
 ```
 
 다음 명령어로 terraform 코드가 유효한지 확인합니다.
@@ -71,6 +73,8 @@ terraform validate
 ```
 
 다음 명령어로 생성될 자원을 확인합니다.
+
+slack_token 변수에는 slack bot user token, 또는 null 값을 포함한 아무 값이나 입력합니다.
 
 ```shell
 terraform plan
@@ -84,7 +88,49 @@ slack_token 변수에는 slack bot user token을 입력합니다.
 terraform apply --auto-approve
 ```
 
+terraform output으로 확인할 수 있는 값은 다음과 같습니다.
+
+(예시)
+
+```shell
+lb_dns = "evaluation-lb-18e0b053fdf0dd5e.elb.us-east-1.amazonaws.com"
+```
+
+lb_dns는 amqp, rabbitmq-management, evaluation-api, mongodb에 접근할 수 있는 NLB의 DNS입니다.
+
+수강생들에게 RABBITMQ_HOST로 이 주소, 또는 route53, bit.ly 등으로 쉽게 만들어진 url을 제공할 수 있고,
+
+evaluation-api(8080), rabbitmq-management(15672) 등에 접속할 수 있습니다.
+
+(예시)
+
+```shell
+lambda_url = "https://bta7emob6ajegjiojc7s6kv5nm0flrxy.lambda-url.us-east-1.on.aws/"
+```
+
+lambda_url은 slack app의 slash command에서 사용될 https url입니다.
+
+slack app의 slash command를 생성할 때 request url로 이 주소를 사용합니다.
+
+slack의 slash command를 보내면, lambda로 넘어가서 결과를 알려줍니다.
+
+lambda의 소스 코드는 `lambda/index.mjs`와 동일합니다.
+
+(예시)
+
+```shell
+mongodb_password = <sensitive>
+```
+
+mongodb의 패스워드입니다. `terraform output mongodb_password` 명령어로 확인 가능합니다.
+
 ### stack 확인하기
+
+AWS cloudwatch log group 중 `msp-t3-dev-evaluation` 로그 그룹에서도 컨테이너의 로그를 확인할 수 있고
+
+`/aws/lambda/slack_lambda` 로그 그룹에서 lambda의 로그를 확인할 수 있습니다.
+
+직접 인스턴스에 접속해서도 확인 가능합니다.
 
 AWS console > EC2 > instances > evaluation-docker-server에서
 
@@ -107,5 +153,3 @@ sudo docker ps
 ```shell
 sudo docker service logs <<service_name>>
 ```
-
-AWS cloudwatch log group 중 msp-t3-dev-evaluation 로그 그룹에서도 컨테이너별로 로그를 확인할 수 있습니다.
