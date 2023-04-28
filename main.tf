@@ -8,13 +8,13 @@ module "s3" {
 }
 
 module "ec2" {
-  source             = "./ec2"
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_id  = module.vpc.private_subnet_id
-  public_subnet_id   = module.vpc.public_subnet_id
-  public_subnet_cidr = module.vpc.public_subnet_cidr
-  my_ami             = var.my_ami
-  instance_type      = var.instance_type
+  source                = "./ec2"
+  vpc_id                = module.vpc.vpc_id
+  private_subnet_id     = module.vpc.private_subnet_id
+  public_subnet_id      = module.vpc.public_subnet_id
+  public_subnet_cidr    = module.vpc.public_subnet_cidr
+  my_ami                = var.my_ami
+  instance_type         = var.instance_type
   cidr_blocks_to_access = var.cidr_blocks_to_access
 
   depends_on = [
@@ -27,7 +27,7 @@ module "lambda" {
   depends_on = [
     module.ec2
   ]
-  source = "./lambda"
+  source                 = "./lambda"
   vpc_id                 = module.vpc.vpc_id
   private_subnet_id      = module.vpc.private_subnet_id
   public_subnet_id       = module.vpc.public_subnet_id
