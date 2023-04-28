@@ -15,7 +15,7 @@ module "ec2" {
   public_subnet_cidr = module.vpc.public_subnet_cidr
   my_ami             = var.my_ami
   instance_type      = var.instance_type
-  global_lounge_cidr = var.global_lounge_cidr
+  cidr_blocks_to_access = var.cidr_blocks_to_access
 
   depends_on = [
     module.vpc,

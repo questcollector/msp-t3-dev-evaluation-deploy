@@ -61,7 +61,7 @@ terraform.tfvars 파일에 적절한 값으로 수정합니다.
 ```json
 aws_region          = "자원이 생성될 리전"             # "ap-northeast-1"
 my_ami              = "docker 인스턴스의 ami(ubuntu 22.04 free tier)" # "ami-088da9557aae42f39"
-global_lounge_cidr = ["실습강사 IP CIDR", ...]
+cidr_blocks_to_access = ["실습강사 IP CIDR", ...]
 ```
 
 다음 명령어로 terraform 코드가 유효한지 확인합니다.

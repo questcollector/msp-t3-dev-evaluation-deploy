@@ -22,7 +22,7 @@ resource "aws_security_group_rule" "rabbitmq-management" {
   to_port     = 15672
   protocol    = "TCP"
 
-  cidr_blocks       = var.global_lounge_cidr
+  cidr_blocks       = var.cidr_blocks_to_access
   security_group_id = aws_security_group.docker_sg.id
 }
 
@@ -46,7 +46,7 @@ resource "aws_security_group_rule" "api" {
   to_port     = 8080
   protocol    = "TCP"
 
-  cidr_blocks       = var.global_lounge_cidr
+  cidr_blocks       = var.cidr_blocks_to_access
   security_group_id = aws_security_group.docker_sg.id
 }
 
@@ -70,6 +70,6 @@ resource "aws_security_group_rule" "mongo" {
   to_port     = 27017
   protocol    = "TCP"
 
-  cidr_blocks       = var.global_lounge_cidr
+  cidr_blocks       = var.cidr_blocks_to_access
   security_group_id = aws_security_group.docker_sg.id
 }

@@ -12,7 +12,7 @@ variable "my_ami" {
   description = "EC2 ami"
 }
 
-variable "global_lounge_cidr" {
+variable "cidr_blocks_to_access" {
   default     = null
   type        = list(any)
   description = "global lounge cidr"

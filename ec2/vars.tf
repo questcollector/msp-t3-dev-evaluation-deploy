@@ -4,4 +4,4 @@ variable "public_subnet_id" {}
 variable "public_subnet_cidr" {}
 variable "my_ami" {}
 variable "instance_type" {}
-variable "global_lounge_cidr" {}
+variable "cidr_blocks_to_access" {}
