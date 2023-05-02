@@ -1,5 +1,6 @@
 .terraform*
 *.pem
+*.json
 **/init-mongo.js
 **/.env
 **/mongodb_password

@@ -5,3 +5,4 @@ variable "public_subnet_cidr" {}
 variable "my_ami" {}
 variable "instance_type" {}
 variable "cidr_blocks_to_access" {}
+variable "s3_bucket" {}

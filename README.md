@@ -6,7 +6,7 @@
 
 최신 버전의 aws cli를 운영체제에 맞는 방법으로 설치합니다.
 
-https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/getting-started-install.html
+<https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/getting-started-install.html>
 
 aws configure를 설정하여 access key와 secret access key를 등록합니다.
 
@@ -18,19 +18,25 @@ aws configure
 
 최신 버전의 terraform을 운영체제에 맞는 방법으로 설치합니다.
 
-https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+<https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli>
 
 ### 3. git clone
 
 최신 버전의 git을 운영체제에 맞는 방법으로 설치합니다.
 
-https://git-scm.com/downloads
+<https://git-scm.com/downloads>
 
 다음 명령어로 이 Repository를 clone 합니다.
 
 ```shell
-git clone 
+git clone https://github.com/mspt2/msp-t3-dev-evaluation-deploy.git
 ```
+
+### 4. python 설치
+
+python3 버전을 운영체제에 맞는 방법으로 설치합니다.
+
+<https://www.python.org/downloads/>
 
 ## terraform apply
 
@@ -110,6 +116,10 @@ lambda_url = "https://bta7emob6ajegjiojc7s6kv5nm0flrxy.lambda-url.us-east-1.on.a
 
 lambda_url은 slack app의 slash command에서 사용될 https url입니다.
 
+slack app을 만드는 방법에 대해서는 다음 주소에서 확인합니다.
+
+<https://tall-fuel-e5e.notion.site/4-Slack-bot-fedf51dd032f4fe895d73443847115fc>
+
 slack app의 slash command를 생성할 때 request url로 이 주소를 사용합니다.
 
 slack의 slash command를 보내면, lambda로 넘어가서 결과를 알려줍니다.
@@ -123,6 +133,24 @@ mongodb_password = <sensitive>
 ```
 
 mongodb의 패스워드입니다. `terraform output mongodb_password` 명령어로 확인 가능합니다.
+
+(예시)
+
+```shell
+rabbitmq_password = <sensitive>
+```
+
+rabbitmq의 패스워드입니다. `terraform output rabbitmq_password` 명령어로 확인 가능합니다.
+
+rabbitmq의 계정명은 admin입니다.
+
+다음 명령어로 자원을 종료합니다.
+
+slack_token 변수에는 slack bot user token, 또는 null 값을 포함한 아무 값이나 입력합니다.
+
+```shell
+terraform destroy --auto-approve
+```
 
 ### stack 확인하기
 

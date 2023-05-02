@@ -31,7 +31,8 @@ resource "aws_instance" "docker" {
   key_name             = aws_key_pair.keypair.key_name
   iam_instance_profile = aws_iam_instance_profile.docker-sever-profile.name
 
-  user_data = file("${path.module}/userdata")
+  user_data = templatefile("${path.module}/userdata.tpl",
+  { s3_bucket : var.s3_bucket })
 
   tags = {
     Name = "evaluation-docker-server"

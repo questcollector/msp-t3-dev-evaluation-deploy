@@ -46,6 +46,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=eval
       - MONGO_INITDB_DATABASE=students
       - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password
+      - TZ=Asia/Seoul
     secrets:
       - mongodb_password
 secrets:

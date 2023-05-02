@@ -1,1 +1,1 @@
-${rand_passwd}
+${mongodb_passwd}

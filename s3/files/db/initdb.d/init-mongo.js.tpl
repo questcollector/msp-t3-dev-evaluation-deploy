@@ -26,7 +26,7 @@ db.message_data.createIndex( { instanceId: 1 } )
 
 db.createUser({
     user: 'eval',
-    pwd: '${rand_passwd}',
+    pwd: '${mongodb_passwd}',
     roles: [
         {
             role: 'readWrite',

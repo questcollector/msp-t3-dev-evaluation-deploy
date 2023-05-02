@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "docker_server_data" {
-  bucket = "docker-server-bucket-mspt3"
+  bucket_prefix = "docker-server-bucket"
 
   tags = {
     description = "data bucket for docker-server"

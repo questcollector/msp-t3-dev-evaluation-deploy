@@ -16,6 +16,7 @@ module "ec2" {
   my_ami                = var.my_ami
   instance_type         = var.instance_type
   cidr_blocks_to_access = var.cidr_blocks_to_access
+  s3_bucket             = module.s3.s3_bucket
 
   depends_on = [
     module.vpc,

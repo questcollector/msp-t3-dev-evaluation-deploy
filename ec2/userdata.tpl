@@ -47,7 +47,7 @@ docker swarm init
 mkdir -p /app/rabbit-data
 mkdir -p /app/db/data
 
-aws s3 cp s3://docker-server-bucket-mspt3/files.zip /app/files.zip
+aws s3 cp s3://${s3_bucket}/files.zip /app/files.zip
 
 cd /app
 
