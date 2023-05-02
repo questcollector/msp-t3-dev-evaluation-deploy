@@ -1,5 +1,7 @@
 # evaluation infrastructure as Code with terraform
 
+![diagram](draw.io/evaluation.drawio.png)
+
 ## 환경 설정
 
 ### 1. aws cli 설치
