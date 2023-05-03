@@ -74,6 +74,12 @@ start_date            = "실습참여도 과제 시작 시점" # LocalDateTime f
 end_date              = "실습참여도 과제 종료 시점" # LocalDateTime format 2023-01-01T00:00:00
 ```
 
+다음 명령어로 terraform project를 초기화합니다.
+
+```shell
+terraform init
+```
+
 다음 명령어로 terraform 코드가 유효한지 확인합니다.
 
 ```shell
