@@ -1,6 +1,10 @@
 #!/bin/bash -xe
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
+### tcp keepalive settings
+echo 240 > /proc/sys/net/ipv4/tcp_keepalive_time
+echo 30 > /proc/sys/net/ipv4/tcp_keepalive_intvl
+
 apt update
 
 ### awscli
