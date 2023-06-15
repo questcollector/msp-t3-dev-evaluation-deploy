@@ -63,4 +63,4 @@ chmod 777 /app/db/initdb.d/init-mongo.js
 
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 275291497228.dkr.ecr.us-east-1.amazonaws.com
 
-docker stack deploy --compose-file /app/docker-compose.yml --with-registry-auth msp-t3
+docker stack deploy --compose-file /app/docker-compose.yml --with-registry-auth mspt3

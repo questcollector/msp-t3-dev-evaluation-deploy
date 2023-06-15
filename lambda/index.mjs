@@ -20,23 +20,19 @@ export const handler = async(event) => {
     const uri = `http://${apiHost}:8080/api/evaluation/slackUserId/?slackUserId=${userId}&startDate=${startDate}&endDate=${endDate}`
     console.log(uri)
     
-    let response;
+    let response = {
+            "response_type": "in_channel",
+            "text": "지금은 결과를 확인할 수 없습니다."
+    };
     try {
         /*global fetch*/
         const res = await fetch(uri);
         const data = await res.json();
         console.log(data);
         
-        response = {
-            "response_type": "in_channel",
-            "text": data['reason']
-        };
+        response["text"] = data['reason'];
     } catch (e) {
         console.error(e)
-        response = {
-            "response_type": "in_channel",
-            "text": "지금은 결과를 확인할 수 없습니다."
-        }
     }
     
     return response;

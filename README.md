@@ -40,6 +40,20 @@ python3 버전을 운영체제에 맞는 방법으로 설치합니다.
 
 <https://www.python.org/downloads/>
 
+### 5. route53 도메인 발급 및 Certificate Manager 인증서 발급
+
+Route53 도메인 발급
+
+<https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/1-5-Route53.md>
+
+Certificate Manager 인증서 발급
+
+<https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/4-1-ACM.md>
+
+발급받은 인증서의 arn은 복사하여 terraform.tfvars에 활용하도록 합니다.
+
+![acm-arn](img/acm-arn.png)
+
 ## terraform apply
 
 clone한 repository의 경로에서 `provider.tf`를 수정합니다.
@@ -72,6 +86,7 @@ my_ami                = "docker 인스턴스의 ami(ubuntu 22.04 free tier)" # "
 cidr_blocks_to_access = ["global lounge CIDR", ...]
 start_date            = "실습참여도 과제 시작 시점" # LocalDateTime format 2023-01-01T00:00:00
 end_date              = "실습참여도 과제 종료 시점" # LocalDateTime format 2023-01-01T00:00:00
+acm_arn               = "ACM 인증서 ARN"
 ```
 
 다음 명령어로 terraform project를 초기화합니다.
@@ -102,6 +117,8 @@ slack_token 변수에는 slack bot user token을 입력합니다.
 terraform apply --auto-approve
 ```
 
+<br>
+
 terraform output으로 확인할 수 있는 값은 다음과 같습니다.
 
 (예시)
@@ -110,11 +127,9 @@ terraform output으로 확인할 수 있는 값은 다음과 같습니다.
 lb_dns = "evaluation-lb-18e0b053fdf0dd5e.elb.us-east-1.amazonaws.com"
 ```
 
-lb_dns는 amqp, rabbitmq-management, evaluation-api, mongodb에 접근할 수 있는 NLB의 DNS입니다.
+lb_dns는 amqp에 접근할 수 있는 NLB의 DNS입니다.
 
-수강생들에게 RABBITMQ_HOST로 이 주소, 또는 route53, bit.ly 등으로 쉽게 만들어진 url을 제공할 수 있고,
-
-evaluation-api(8080), rabbitmq-management(15672) 등에 접속할 수 있습니다.
+수강생들에게 RABBITMQ_HOST로 이 주소, 또는 route53, bit.ly 등으로 쉽게 만들어진 url을 제공할 수 있습니다.
 
 (예시)
 
@@ -152,6 +167,8 @@ rabbitmq의 패스워드입니다. `terraform output rabbitmq_password` 명령�
 
 rabbitmq의 계정명은 admin입니다.
 
+<br>
+
 다음 명령어로 자원을 종료합니다.
 
 slack_token 변수에는 slack bot user token, 또는 null 값을 포함한 아무 값이나 입력합니다.
@@ -159,6 +176,26 @@ slack_token 변수에는 slack bot user token, 또는 null 값을 포함한 아�
 ```shell
 terraform destroy --auto-approve
 ```
+
+## api, rabbitmq-management route53에 연결하기
+
+api와 rabbitmq-management는 application loadbalancer를 통해 HTTPS로 접속할 수 있습니다.
+
+이를 위해 route53에서 api와 rabbitmq-management에 대한 record를 등록하도록 합니다.
+
+우선 hosted zone에서 Create record를 클릭합니다.
+
+![create-record](img/create-record.png)
+
+api 레코드를 아래와 같이 api loadbalancer를 등록하여 입력합니다.
+
+![api-record](img/api-record.png)
+
+rabbitmq-management 레코드를 아래와 같이 management loadbalancer를 등록하여 입력합니다.
+
+![management-record](img/management-record.png)
+
+
 
 ### stack 확인하기
 
@@ -175,7 +212,7 @@ connect 버튼을 클릭한 후 Session Manager 탭에서 connect 버튼을 클�
 다음 명령어로 stack에 올라온 서비스들을 확인할 수 있습니다.
 
 ```shell
-sudo docker stack services msp-t3
+sudo docker stack services mspt3
 ```
 
 다음 명령어로 전체 container의 정보를 확인할 수 있습니다.
@@ -218,3 +255,78 @@ sudo docker service logs <<service_name>>
 ```shell
 aws ec2 authorize-security-group-ingress --cli-input-json file://./windows-vm-sg.json
 ```
+
+## mongoDB compass 접속
+
+mongoDB compass는 mongodb에 접속하는 것을 도와주는 도구입니다.
+
+접속을 위해서 우선 mongDB compass를 다운로드합니다.
+
+<https://www.mongodb.com/try/download/compass>
+
+![compass](img/compass.png)
+
+<br>
+
+vscode의 원격 접속을 이용하여 bastion 서버를 매개로 하여 포트 포워딩을 하도록 합니다.
+
+Windows에서의 openSSH 설치에 대해서는 다음 문서를 참고합니다.
+
+<https://learn.microsoft.com/ko-kr/windows-server/administration/openssh/openssh_install_firstuse?tabs=gui>
+
+vscode의 remote extensions에 대해서는 다음 문서를 참고합니다.
+
+<https://code.visualstudio.com/docs/remote/ssh>
+
+<br>
+
+ssh config를 다음과 같이 작성합니다.
+
+windows의 경우 기본적으로 `%userprofile%\.ssh\config` 파일에 작성합니다.
+
+![sshconfig](img/sshconfig.png)
+
+```config
+Host docker-server
+    ProxyJump ubuntu@proxy
+    HostName 10.0.10.10
+    Port 22
+    User ubuntu
+    IdentityFile <<docker-instance-key.pem 위치>>
+  
+Host proxy
+    HostName <<bastion_server_public_ip>>
+    User ubuntu
+    Port 22
+    IdentityFile <<docker-instance-key.pem 위치>>
+```
+
+<br>
+
+vscode의 remote explorer에서 docker-server를 클릭하여 접속합니다.
+
+![remote explorer](img/remote-explorer.png)
+
+<br>
+
+원격 접속한 세션에서 메뉴 > 터미널 > New Terminal을 클릭하여 터미널 섹션을 활성화합니다.
+
+터미널 섹션에서 PORTS 탭에서 Add Port를 클릭한 수 27017 포트를 입력하여 포트 포워딩을 합니다.
+
+![port-forwarding](img/port-forwarding.png)
+
+<br>
+
+mongoDB compass에서 다음 정보로 연결을 합니다.
+
+| 항목 | 값 |
+| --- | - |
+|Username|eval|
+|Password|`terraform output mongodb_password` 명령어의 결과|
+|Authentication Database|students|
+
+![connect](img/connect.png)
+
+students 데이터베이스의 message_data를 클릭하면 쿼리를 할 수 있습니다.
+
+![documents](img/documents.png)

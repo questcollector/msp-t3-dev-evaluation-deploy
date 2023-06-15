@@ -41,3 +41,9 @@ variable "end_date" {
   type        = string
   description = "2023-04-20T00:00:00"
 }
+
+variable "acm_arn" {
+  default     = null
+  type        = string
+  description = "arn:aws:acm:region:99999999:certificate/id"
+}

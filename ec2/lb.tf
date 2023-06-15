@@ -1,5 +1,5 @@
-resource "aws_lb" "evaluation_lb" {
-  name               = "evaluation-lb"
+resource "aws_lb" "amqp_lb" {
+  name               = "amqp-lb"
   internal           = false
   load_balancer_type = "network"
   subnets            = var.public_subnet_id
@@ -11,12 +11,40 @@ resource "aws_lb" "evaluation_lb" {
   }
 }
 
+resource "aws_lb" "api_lb" {
+  name               = "api-lb"
+  internal           = false
+  load_balancer_type = "application"
+  subnets            = var.public_subnet_id
+
+  enable_deletion_protection = false
+  security_groups = [ aws_security_group.lb_sg.id ]
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb" "management_lb" {
+  name               = "management-lb"
+  internal           = false
+  load_balancer_type = "application"
+  subnets            = var.public_subnet_id
+
+  enable_deletion_protection = false
+  security_groups = [ aws_security_group.lb_sg.id ]
+
+  tags = {
+    Environment = "production"
+  }
+}
+
 ###################
 ## target groups
 ###################
 
 resource "aws_lb_target_group" "amqp" {
-  name     = "evaluation-lb-tg-amqp"
+  name     = "amqp-tg"
   port     = 5672
   protocol = "TCP"
   vpc_id   = var.vpc_id
@@ -29,9 +57,9 @@ resource "aws_lb_target_group_attachment" "amqp" {
 }
 
 resource "aws_lb_target_group" "rabbitmq_management" {
-  name     = "evaluation-lb-tg-management"
+  name     = "management-tg"
   port     = 15672
-  protocol = "TCP"
+  protocol = "HTTP"
   vpc_id   = var.vpc_id
 }
 
@@ -42,9 +70,9 @@ resource "aws_lb_target_group_attachment" "rabbitmq_management" {
 }
 
 resource "aws_lb_target_group" "api" {
-  name     = "evaluation-lb-tg-api"
+  name     = "api-tg"
   port     = 8080
-  protocol = "TCP"
+  protocol = "HTTP"
   vpc_id   = var.vpc_id
 }
 
@@ -54,19 +82,6 @@ resource "aws_lb_target_group_attachment" "api" {
   port             = 8080
 }
 
-resource "aws_lb_target_group" "mongodb" {
-  name     = "evaluation-lb-tg-mongodb"
-  port     = 27017
-  protocol = "TCP"
-  vpc_id   = var.vpc_id
-}
-
-resource "aws_lb_target_group_attachment" "mongodb" {
-  target_group_arn = aws_lb_target_group.mongodb.arn
-  target_id        = aws_instance.docker.id
-  port             = 27017
-}
-
 
 ###################
 ## listeners
@@ -74,7 +89,7 @@ resource "aws_lb_target_group_attachment" "mongodb" {
 
 
 resource "aws_lb_listener" "amqp" {
-  load_balancer_arn = aws_lb.evaluation_lb.arn
+  load_balancer_arn = aws_lb.amqp_lb.arn
   port              = "5672"
   protocol          = "TCP"
 
@@ -85,9 +100,12 @@ resource "aws_lb_listener" "amqp" {
 }
 
 resource "aws_lb_listener" "rabbitmq-management" {
-  load_balancer_arn = aws_lb.evaluation_lb.arn
-  port              = "15672"
-  protocol          = "TCP"
+  load_balancer_arn = aws_lb.management_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+
+  ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn = var.acm_arn
 
   default_action {
     type             = "forward"
@@ -95,10 +113,14 @@ resource "aws_lb_listener" "rabbitmq-management" {
   }
 }
 
-resource "aws_lb_listener" "api" {
-  load_balancer_arn = aws_lb.evaluation_lb.arn
-  port              = "8080"
-  protocol          = "TCP"
+
+resource "aws_lb_listener" "api-https" {
+  load_balancer_arn = aws_lb.api_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+
+  ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn = var.acm_arn
 
   default_action {
     type             = "forward"
@@ -106,13 +128,18 @@ resource "aws_lb_listener" "api" {
   }
 }
 
-resource "aws_lb_listener" "mongodb" {
-  load_balancer_arn = aws_lb.evaluation_lb.arn
-  port              = "27017"
-  protocol          = "TCP"
+resource "aws_lb_listener" "api-http" {
+  load_balancer_arn = aws_lb.api_lb.arn
+  port              = "80"
+  protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.mongodb.arn
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }

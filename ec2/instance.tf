@@ -21,7 +21,19 @@ resource "aws_key_pair" "keypair" {
 ########################
 ## instance
 ########################
+resource "aws_instance" "bastion" {
+  ami             = var.my_ami
+  instance_type   = "t2.micro"
+  subnet_id       = var.public_subnet_id[0]
+  private_ip      = "10.0.1.10"
+  security_groups = [aws_security_group.bastion_sg.id]
+  key_name        = aws_key_pair.keypair.key_name
 
+
+  tags = {
+    Name = "bastion-server"
+  }
+}
 resource "aws_instance" "docker" {
   ami                  = var.my_ami
   instance_type        = var.instance_type

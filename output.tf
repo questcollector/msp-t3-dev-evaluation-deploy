@@ -15,3 +15,7 @@ output "lb_dns" {
 output "lambda_url" {
   value = module.lambda.function_url
 }
+
+output "bastion_server_public_ip" {
+  value = module.ec2.bastion_server_public_ip
+}
