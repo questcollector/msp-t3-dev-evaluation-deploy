@@ -18,7 +18,7 @@ resource "aws_lb" "api_lb" {
   subnets            = var.public_subnet_id
 
   enable_deletion_protection = false
-  security_groups = [ aws_security_group.lb_sg.id ]
+  security_groups            = [aws_security_group.lb_sg.id]
 
   tags = {
     Environment = "production"
@@ -32,7 +32,7 @@ resource "aws_lb" "management_lb" {
   subnets            = var.public_subnet_id
 
   enable_deletion_protection = false
-  security_groups = [ aws_security_group.lb_sg.id ]
+  security_groups            = [aws_security_group.lb_sg.id]
 
   tags = {
     Environment = "production"

@@ -47,3 +47,10 @@ variable "acm_arn" {
   type        = string
   description = "arn:aws:acm:region:99999999:certificate/id"
 }
+
+variable "route53_zone_name" {
+  default     = null
+  type        = string
+  description = "t2-practice-kiyoung-2022.click"
+}
+

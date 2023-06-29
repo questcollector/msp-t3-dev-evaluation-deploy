@@ -25,6 +25,46 @@ module "ec2" {
   ]
 }
 
+data "aws_route53_zone" "domain" {
+  name = var.route53_zone_name
+}
+
+resource "aws_route53_record" "amqp" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "amqp.${var.route53_zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = module.ec2.amqp_lb.dns_name
+    zone_id                = module.ec2.amqp_lb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "api" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "api.${var.route53_zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = module.ec2.api_lb.dns_name
+    zone_id                = module.ec2.api_lb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "rabbitmq_management" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "rabbitmq-management.${var.route53_zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = module.ec2.rabbitmq_management_lb.dns_name
+    zone_id                = module.ec2.rabbitmq_management_lb.zone_id
+    evaluate_target_health = true
+  }
+}
+
 module "lambda" {
   depends_on = [
     module.ec2
