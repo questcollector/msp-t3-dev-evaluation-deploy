@@ -46,13 +46,29 @@ Route53 도메인 발급
 
 <https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/1-5-Route53.md>
 
+발급받은 도메인 주소는 복사하여 terraform.tfvars에 활용하도록 합니다.
+
+![hosted-zone](img/hosted-zone.png)
+
+<br>
+
 Certificate Manager 인증서 발급
 
 <https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/4-1-ACM.md>
 
 발급받은 인증서의 arn은 복사하여 terraform.tfvars에 활용하도록 합니다.
 
+> 주의: terraform으로 생성되는 자원의 region과 동일한 region에 생성합니다.
+
 ![acm-arn](img/acm-arn.png)
+
+### 6. S3 버킷 생성하기
+
+terraform state 파일을 저장할 S3 bucket을 생성합니다.
+
+기존에 버킷이 있다면 새로 생성하지 않아도 괜찮습니다.
+
+<https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/2-1-Terraform-Env.md#1-4-s3-%EB%B2%84%ED%82%B7-%EC%83%9D%EC%84%B1%ED%95%98%EA%B8%B0>
 
 ## terraform apply
 
@@ -67,7 +83,7 @@ terraform {
   backend "s3" {
     bucket  = "state file이 저장될 s3 bucket명"
     key     = "evaluation/terraform.tfstate"
-    region  = "버킷의 위치"
+    region  = "s3 버킷의 region"
     encrypt = true
   }
   required_version = ">=1.1.3"
@@ -86,7 +102,8 @@ my_ami                = "docker 인스턴스의 ami(ubuntu 22.04 free tier)" # "
 cidr_blocks_to_access = ["global lounge CIDR", ...]
 start_date            = "실습참여도 과제 시작 시점" # LocalDateTime format 2023-01-01T00:00:00
 end_date              = "실습참여도 과제 종료 시점" # LocalDateTime format 2023-01-01T00:00:00
-acm_arn               = "ACM 인증서 ARN"
+acm_arn               = "ACM 인증서 ARN" # ex: arn:aws:acm:us-east-1:999999999999:certificate/id
+route53_zone_name     = "Route53 Hosted zone 이름(도메인 주소)" # ex: t2-practice-kiyoung-2022.click
 ```
 
 다음 명령어로 terraform project를 초기화합니다.
@@ -124,12 +141,46 @@ terraform output으로 확인할 수 있는 값은 다음과 같습니다.
 (예시)
 
 ```shell
-lb_dns = "evaluation-lb-18e0b053fdf0dd5e.elb.us-east-1.amazonaws.com"
+amqp_uri = "amqp.t2-practice-kiyoung-2022.click"
 ```
 
-lb_dns는 amqp에 접근할 수 있는 NLB의 DNS입니다.
+amqp_uri는 amqp 프로토콜로 접근할 수 있는 URL입니다.
 
-수강생들에게 RABBITMQ_HOST로 이 주소, 또는 route53, bit.ly 등으로 쉽게 만들어진 url을 제공할 수 있습니다.
+route53의 record로 amqp 프로토콜로 열려 있는 NLB의 DNS로 연결됩니다.
+
+수강생들에게 RABBITMQ_HOST로 이 주소를 제공할 수 있습니다.
+
+<br>
+
+(예시)
+
+```shell
+api_url = "api.t2-practice-kiyoung-2022.click"
+```
+
+api_url는 평가용 REST API 서비스에 접근할 수 있는 URL입니다.
+
+아래와 같이 swagger ui로 접속할 수 있습니다.
+
+<br>
+
+![api-service](img/api-service.png)
+
+<br><br>
+
+(예시)
+
+```shell
+rabbitmq_managment_uri = "rabbitmq-management.t2-practice-kiyoung-2022.click"
+```
+
+rabbitmq_managment_uri는 rabbitmq-management 서비스에 접근할 수 있는 URL입니다.
+
+<br>
+
+![managment-service](img/management-service.png)
+
+<br><br>
 
 (예시)
 
@@ -139,15 +190,31 @@ lambda_url = "https://bta7emob6ajegjiojc7s6kv5nm0flrxy.lambda-url.us-east-1.on.a
 
 lambda_url은 slack app의 slash command에서 사용될 https url입니다.
 
-slack app을 만드는 방법에 대해서는 다음 주소에서 확인합니다.
+slack app과 slash command를 만드는 방법에 대해서는 다음 문서에서 확인합니다.
 
-<https://tall-fuel-e5e.notion.site/4-Slack-bot-fedf51dd032f4fe895d73443847115fc>
+:link: <https://tall-fuel-e5e.notion.site/4-Slack-bot-fedf51dd032f4fe895d73443847115fc>
+
+<br>
 
 slack app의 slash command를 생성할 때 request url로 이 주소를 사용합니다.
 
-slack의 slash command를 보내면, lambda로 넘어가서 결과를 알려줍니다.
+slack의 slash command를 보내면, lambda로 넘어가서 결과를 slack message의 형태로 알려줍니다.
 
 lambda의 소스 코드는 `lambda/index.mjs`와 동일합니다.
+
+<br>
+
+(예시)
+
+```shell
+bastion_server_public_ip = "54.167.206.63"
+```
+
+bastion server의 public ip입니다.
+
+docker instance에 ssh로 접속할 경우나 mongodb compass로 mongodb에 접속하는 경우 활용됩니다.
+
+<br>
 
 (예시)
 
@@ -156,6 +223,14 @@ mongodb_password = <sensitive>
 ```
 
 mongodb의 패스워드입니다. `terraform output mongodb_password` 명령어로 확인 가능합니다.
+
+mongodb compass로 접속할 경우 사용할 수 있습니다.
+
+mongodb의 username은 eval, 인증 데이터베이스는 students입니다.
+
+자세한 접속 방법은 [mongoDB compass 접속](#mongodb-compass-접속)에서 확인 가능합니다.
+
+<br>
 
 (예시)
 
@@ -179,9 +254,11 @@ terraform destroy --auto-approve
 
 ## api, rabbitmq-management route53에 연결하기
 
+이 부분은 terraform으로 자원을 생성할 때 자동으로 생성되므로 넘어가도 좋습니다.
+
 api와 rabbitmq-management는 application loadbalancer를 통해 HTTPS로 접속할 수 있습니다.
 
-이를 위해 route53에서 api와 rabbitmq-management에 대한 record를 등록하도록 합니다.
+이를 위해 route53에서 api와 rabbitmq-management에 대한 record를 등록합니다.
 
 우선 hosted zone에서 Create record를 클릭합니다.
 
@@ -196,18 +273,23 @@ rabbitmq-management 레코드를 아래와 같이 management loadbalancer를 등
 ![management-record](img/management-record.png)
 
 
-
-### stack 확인하기
+## stack 확인하기
 
 AWS cloudwatch log group 중 `msp-t3-dev-evaluation` 로그 그룹에서도 컨테이너의 로그를 확인할 수 있고
 
 `/aws/lambda/slack_lambda` 로그 그룹에서 lambda의 로그를 확인할 수 있습니다.
+
+<br>
 
 직접 인스턴스에 접속해서도 확인 가능합니다.
 
 AWS console > EC2 > instances > evaluation-docker-server에서
 
 connect 버튼을 클릭한 후 Session Manager 탭에서 connect 버튼을 클릭하면 인스턴스에 연결할 수 있습니다.
+
+또는 bastion server를 통해 ssh 클라이언트를 통해서 접속할 수 있습니다.
+
+<br>
 
 다음 명령어로 stack에 올라온 서비스들을 확인할 수 있습니다.
 
@@ -292,13 +374,13 @@ Host docker-server
     HostName 10.0.10.10
     Port 22
     User ubuntu
-    IdentityFile <<docker-instance-key.pem 위치>>
+    IdentityFile <<docker-instance-key.pem 위치>> # <<msp-t3-dev-evaluation-deploy/ec2/docker-instance-key.pem>>
   
 Host proxy
-    HostName <<bastion_server_public_ip>>
+    HostName <<bastion_server_public_ip>> # terraform output bastion_server_public_ip로 확인 가능합니다.
     User ubuntu
     Port 22
-    IdentityFile <<docker-instance-key.pem 위치>>
+    IdentityFile <<docker-instance-key.pem 위치>>  # <<msp-t3-dev-evaluation-deploy/ec2/docker-instance-key.pem>>
 ```
 
 <br>
