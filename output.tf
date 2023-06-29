@@ -8,8 +8,16 @@ output "rabbitmq_password" {
   sensitive = true
 }
 
-output "lb_dns" {
-  value = module.ec2.lb_dns
+output "amqp_uri" {
+  value = aws_route53_record.amqp.name
+}
+
+output "api_uri" {
+  value = aws_route53_record.api.name
+}
+
+output "rabbitmq_managment_uri" {
+  value = aws_route53_record.rabbitmq_management.name
 }
 
 output "lambda_url" {
