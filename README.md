@@ -70,6 +70,75 @@ terraform state 파일을 저장할 S3 bucket을 생성합니다.
 
 <https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/2-1-Terraform-Env.md#1-4-s3-%EB%B2%84%ED%82%B7-%EC%83%9D%EC%84%B1%ED%95%98%EA%B8%B0>
 
+
+### 7. Github Codespaces 활용하기
+
+github codespace를 이용하여 실행할 수 있습니다.
+
+codespace는 무료 계정 기준 120 코어-시간의 자원을 제공합니다.
+
+codespace의 실행 환경에 대한 설정은 [.devcontainer](./.devcontainer)에 있습니다.
+
+쉽게 실행 환경을 만들기 위해서 codespace에서 활용할 AWS access key에 대한 secret을 설정해 줍니다.
+
+<br>
+
+Github 개인 계정에 접속하여 우측의 본인 프로필을 클릭한 다음 `Settings` 메뉴를 클립합니다.
+
+![github-settings](img/github-settings.png)
+
+`Codespaces` 메뉴에서 `New Secret` 버튼을 클릭합니다.
+
+![new-secret](img/new-secret.png)
+
+다음과 같이 3개의 Secret을 추가합니다.
+
+|Name|Value|Repository|
+|--|--|--|
+|`AWS_ACCESS_KEY_ID`|본인의 AWS access key|mspt2/msp-t3-dev-evaluation-deploy|
+|`AWS_SECRET_ACCESS_KEY`|본인의 AWS secret access key|mspt2/msp-t3-dev-evaluation-deploy|
+|`AWS_DEFAULT_REGION`|us-east-1|mspt2/msp-t3-dev-evaluation-deploy|
+
+<br>
+
+![access-key](img/access-key.png)
+
+![secret-access-key](img/secret-access-key.png)
+
+![default-region](img/default-region.png)
+
+<br>
+
+github에서 msp-t3-dev-evaluation-deploy 레포지토리에 접속한 다음
+
+`Code` > `Codespaces` > `Create codespace on main` 버튼을 클릭합니다.
+
+![create-codespaces](img/create-codespaces.png)
+
+실행된 다음 조금 시간이 지나면 [devcontainer.json](./.devcontainer/devcontainer.json)에 설정해 둔 vscode extensions와 terraform과 awscli를 설치하는 [post-install.sh](./.devcontainer/post-install.sh) 스크립트가 실행됩니다.
+
+![run-codespaces](img/run-codespaces.png)
+
+다 완료되고 아래 명령어를 실행하여 잘 설정이 되었는지 확인합니다.
+
+```bash
+@questcollector ➜ /workspaces/msp-t3-dev-evaluation-deploy (main) $ terraform version
+Terraform v1.5.2
+on linux_amd64
+@questcollector ➜ /workspaces/msp-t3-dev-evaluation-deploy (main) $ aws sts get-caller-identity
+{
+    "UserId": "AIDXXXXXXXXXXXXXXXXX",
+    "Account": "999999999999", ## aws account 확인
+    "Arn": "arn:aws:iam::999999999999:user/mspmanager"
+}
+```
+
+<br>
+
+사용 후에는 삭제하여 불필요한 과금을 막도록 합니다.
+
+![delete-codespaces](img/delete-codespaces.png)
+
 ## terraform apply
 
 clone한 repository의 경로에서 `provider.tf`를 수정합니다.
