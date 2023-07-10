@@ -106,7 +106,7 @@ resource "aws_route_table_association" "private" {
 
 
 resource "aws_eip" "nat" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.terra]
 
   tags = {
