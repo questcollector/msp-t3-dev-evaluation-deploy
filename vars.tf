@@ -51,6 +51,6 @@ variable "acm_arn" {
 variable "route53_zone_name" {
   default     = null
   type        = string
-  description = "t2-practice-kiyoung-2022.click"
+  description = "example.com"
 }
 
