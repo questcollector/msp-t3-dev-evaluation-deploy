@@ -44,7 +44,7 @@ python3 버전을 운영체제에 맞는 방법으로 설치합니다.
 
 Route53 도메인 발급
 
-<https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/1-5-Route53.md>
+<https://docs.aws.amazon.com/ko_kr/Route53/latest/DeveloperGuide/domain-register.html>
 
 발급받은 도메인 주소는 복사하여 terraform.tfvars에 활용하도록 합니다.
 
@@ -54,7 +54,7 @@ Route53 도메인 발급
 
 Certificate Manager 인증서 발급
 
-<https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/4-1-ACM.md>
+<https://docs.aws.amazon.com/ko_kr/acm/latest/userguide/gs-acm-request-public.html>
 
 발급받은 인증서의 arn은 복사하여 terraform.tfvars에 활용하도록 합니다.
 
@@ -68,7 +68,7 @@ terraform state 파일을 저장할 S3 bucket을 생성합니다.
 
 기존에 버킷이 있다면 새로 생성하지 않아도 괜찮습니다.
 
-<https://github.com/mspt2/Operation_gitops_2023/blob/main/docs/2-1-Terraform-Env.md#1-4-s3-%EB%B2%84%ED%82%B7-%EC%83%9D%EC%84%B1%ED%95%98%EA%B8%B0>
+<https://developer.hashicorp.com/terraform/language/settings/backends/s3>
 
 
 ### 7. Github Codespaces 활용하기
