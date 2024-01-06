@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-kiyoung-2022"
+    bucket  = "<<s3-bucket-name>>"
     key     = "evaluation/terraform.tfstate"
-    region  = "ap-northeast-2"
+    region  = "<<bucket-region>>"
     encrypt = true
   }
   required_version = ">=1.1.3"
